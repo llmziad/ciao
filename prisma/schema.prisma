@@ -1,0 +1,80 @@
+// ICAO Digital Identity — data model
+// See docs/03-requirements-prd.md §4 and docs/04-technical-architecture.md §3
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  DEACTIVATED
+}
+
+enum TokenType {
+  INVITE
+  RESET
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String? // null until an invited user sets their password
+  role         Role       @default(ADMIN)
+  status       UserStatus @default(ACTIVE)
+  tokenVersion Int        @default(0) // bumped on password change to invalidate existing sessions
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  lastLoginAt  DateTime?
+
+  profile    Profile?
+  authTokens AuthToken[]
+
+  @@index([status])
+  @@map("users")
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug      String   @unique // short random public slug (D5)
+  name      String
+  title     String?
+  phone     String?
+  address   String?
+  photoUrl  String? // null -> branded fallback (D6)
+
+  socialInstagram String?
+  socialTwitter   String?
+  socialFacebook  String?
+  socialLinkedin  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model AuthToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique // sha-256 of the raw token; raw token only in the emailed link
+  type      TokenType
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("auth_tokens")
+}
