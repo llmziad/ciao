@@ -41,7 +41,7 @@ export default async function UsersPage() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="truncate font-semibold text-ink">
-                      {u.profile?.name || "—"}
+                      {u.profile?.name || (u.role === "SUPER_ADMIN" ? "Administrator" : "—")}
                     </span>
                     {u.role === "SUPER_ADMIN" && (
                       <span className="rounded bg-icao-navy px-1.5 py-0.5 text-[10px] font-semibold uppercase text-white">
@@ -74,9 +74,11 @@ export default async function UsersPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <Link href={`/dashboard/users/${u.id}`} className="btn-ghost">
-                  Edit profile
-                </Link>
+                {u.role !== "SUPER_ADMIN" && (
+                  <Link href={`/dashboard/users/${u.id}`} className="btn-ghost">
+                    Edit profile
+                  </Link>
+                )}
 
                 {u.status === "ACTIVE" &&
                   (pending ? (

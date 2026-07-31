@@ -16,18 +16,19 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <Logo />
             </Link>
             <nav className="hidden items-center gap-1 sm:flex">
-              <Link
-                href="/dashboard"
-                className="rounded-lg px-3 py-2 text-sm font-medium text-ink hover:bg-bg"
-              >
-                My profile
-              </Link>
-              {isSuper && (
+              {isSuper ? (
                 <Link
                   href="/dashboard/users"
                   className="rounded-lg px-3 py-2 text-sm font-medium text-ink hover:bg-bg"
                 >
                   Users
+                </Link>
+              ) : (
+                <Link
+                  href="/dashboard"
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-ink hover:bg-bg"
+                >
+                  My profile
                 </Link>
               )}
             </nav>

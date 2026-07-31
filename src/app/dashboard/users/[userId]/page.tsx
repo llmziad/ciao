@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { requireSuperAdmin } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/prisma";
 import { ensureProfile } from "@/lib/profile";
@@ -14,6 +14,8 @@ export default async function EditUserProfilePage({
   await requireSuperAdmin();
   const user = await prisma.user.findUnique({ where: { id: params.userId } });
   if (!user) notFound();
+  // Super admins have no profile to edit.
+  if (user.role === "SUPER_ADMIN") redirect("/dashboard/users");
 
   const profile = await ensureProfile(user.id, user.email.split("@")[0]);
   const publicUrl = `${env.appUrl}/p/${profile.slug}`;

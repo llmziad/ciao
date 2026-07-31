@@ -45,7 +45,8 @@ export async function inviteUserAction(_prev: FormState, formData: FormData): Pr
       email,
       role,
       status: "ACTIVE",
-      profile: { create: { slug: await uniqueSlug(), name } },
+      // Only staff admins have a profile; super admins are administrators only.
+      ...(role === "ADMIN" ? { profile: { create: { slug: await uniqueSlug(), name } } } : {}),
     },
   });
 
@@ -119,6 +120,11 @@ export async function setRoleAction(formData: FormData): Promise<void> {
     throw new Error("You cannot revoke your own super-admin role.");
   }
   await prisma.user.update({ where: { id: userId }, data: { role } });
+  // Super admins have no profile; drop it when promoting. (Demotion lazily
+  // re-creates a profile when the user opens "My profile".)
+  if (role === "SUPER_ADMIN") {
+    await prisma.profile.deleteMany({ where: { userId } });
+  }
   revalidatePath("/dashboard/users");
 }
 

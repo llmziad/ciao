@@ -129,14 +129,9 @@ export default async function PublicProfilePage({
               {profile.name}
             </h1>
             {profile.title && <p className="mt-1.5 text-[15px] text-muted">{profile.title}</p>}
-
-            {/* Credential identifier — the official cue */}
-            <div className="mt-4 inline-flex items-center gap-2 rounded-md border border-line bg-bg px-2.5 py-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-success" aria-hidden />
-              <span className="font-mono text-[11px] tracking-wider text-muted">
-                ICAO ID · {profile.slug.toUpperCase()}
-              </span>
-            </div>
+            <span className="mt-4 rounded-full bg-icao-blue/10 px-3.5 py-1.5 text-xs font-semibold text-icao-blue">
+              International Civil Aviation Organization
+            </span>
           </div>
 
           {/* Primary action */}
