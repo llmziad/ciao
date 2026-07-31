@@ -30,7 +30,7 @@ self-signup (D2), ICAO SSO, localization/RTL (D7).
 | View a public profile page (via scan/link) | ✅ | ✅ | ✅ |
 | Save contact / vCard | ✅ | ✅ | ✅ |
 | Log in to dashboard | ❌ | ✅ | ✅ |
-| Edit **own** profile & QR | ❌ | ✅ | ✅ |
+| Edit **own** profile & QR | ❌ | ✅ | ❌ (no personal profile — D14) |
 | View/edit/delete **any** profile | ❌ | ❌ | ✅ |
 | Invite / create users | ❌ | ❌ | ✅ |
 | Deactivate / delete users | ❌ | ❌ | ✅ |
