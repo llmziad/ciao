@@ -48,8 +48,8 @@ Local proof-of-concept of ICAO Digital Identity, per docs 01–05. Stack + hosti
 ### Pre-production follow-ups (not blocking the POC)
 - **Rotate the Neon password** (shared in plaintext during setup) and update the Vercel
   `DATABASE_URL` + local `.env.local`.
-- **Photo uploads:** add a Vercel **Blob** store (auto-sets `BLOB_READ_WRITE_TOKEN`) — until
-  then, uploads fail on Vercel's read-only filesystem.
+- ~~Photo uploads / Blob store~~ — resolved (D13): photos are stored in Postgres and served
+  via `/api/photo/[slug]`; uploads work on Vercel with no object storage. HEIC supported.
 - **Emails:** disabled in V1 (D12) — invite & reset links are generated in the dashboard and
   shared manually. Adding an email provider is a possible later enhancement.
 - Revoke the temporary Vercel deploy token if no longer needed (git push auto-deploys).

@@ -50,8 +50,10 @@ npm run dev         # http://localhost:3000
 ## Email & storage
 - **Email:** disabled in V1 — no provider needed. Invite/reset links are generated in the
   dashboard (super admin) and shared manually. See decision D12.
-- **Storage:** with `BLOB_READ_WRITE_TOKEN` empty, photos are written to
-  `public/uploads/` (gitignored). Set the token to use Vercel Blob (required on Vercel).
+- **Storage:** profile photos are processed to a 512px WebP and stored in Postgres
+  (`Profile.photoData`), served via `/api/photo/[slug]`. No object storage needed; works
+  the same locally and on Vercel. HEIC is converted to JPEG in the browser before cropping.
+  See decision D13.
 
 ## Scripts
 | Script | Purpose |
