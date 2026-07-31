@@ -33,6 +33,11 @@ clean read-only public profile page (a digital business card).
 - When scope changes, update the affected doc and add a changelog entry below.
 
 ## Changelog
+- **2026-07-31** — **Deployed to production (POC).** Live at https://ciao-plum.vercel.app
+  (Vercel, `llmziad/ciao` → `main` auto-deploy). Set Production env vars (`DATABASE_URL`,
+  `AUTH_SECRET`, `NEXT_PUBLIC_APP_URL`) and forced a rebuild via the Vercel API. Verified
+  live end-to-end (DB reachable, QR decodes to prod URL, vCard). Follow-ups: rotate Neon
+  password, add Blob store for photos, add Resend for emails — see doc 06.
 - **2026-07-31** — **Real ICAO logo + professional redesign.** Extracted the official ICAO
   logo from ICAO's resources (lockup for headers, emblem for QR center); QR plate now a small
   square with square corners (scannability re-verified). Redesigned the public profile page as

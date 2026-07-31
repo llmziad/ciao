@@ -36,7 +36,25 @@ Local proof-of-concept of ICAO Digital Identity, per docs 01–05. Stack + hosti
 - **Domain:** uses `NEXT_PUBLIC_APP_URL`; set the real ICAO subdomain for production.
 - **Email:** console transport in dev; set `RESEND_API_KEY` + verify domain (SPF/DKIM/DMARC).
 
-## How to run
+## Deployment — LIVE (POC)
+- **Production URL:** https://ciao-plum.vercel.app
+- **Host:** Vercel (project `ciao`, GitHub `llmziad/ciao`, branch `main` auto-deploys).
+- **DB:** Neon (same instance as local). Schema + seed already applied.
+- **Env vars set (Production):** `DATABASE_URL`, `AUTH_SECRET`, `NEXT_PUBLIC_APP_URL`.
+- **Verified live:** `/`→`/login`, `/login` 200, `/p/<slug>` 200 (DB reachable),
+  QR decodes to the production URL, vCard 200.
+- **Test account:** `admin@icao.local` / `ChangeMe!2026`.
+
+### Pre-production follow-ups (not blocking the POC)
+- **Rotate the Neon password** (shared in plaintext during setup) and update the Vercel
+  `DATABASE_URL` + local `.env.local`.
+- **Photo uploads:** add a Vercel **Blob** store (auto-sets `BLOB_READ_WRITE_TOKEN`) — until
+  then, uploads fail on Vercel's read-only filesystem.
+- **Invite emails:** set `RESEND_API_KEY` + `EMAIL_FROM` (verify sending domain). Until then
+  the console transport is used and invite links are surfaced in the dashboard UI.
+- Revoke the temporary Vercel deploy token if no longer needed (git push auto-deploys).
+
+## How to run (local)
 See the project [`README.md`](../README.md). Test account: `admin@icao.local` /
 `ChangeMe!2026`.
 
