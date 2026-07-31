@@ -10,8 +10,6 @@ import { profileSchema } from "@/lib/validation";
 import { normalizeSocial, type SocialNetwork } from "@/lib/socials";
 import { processProfilePhoto, isAcceptedImage, MAX_UPLOAD_BYTES } from "@/lib/photo";
 import { MAX_UPLOAD_MB } from "@/lib/upload";
-import { storageService } from "@/lib/services/storage";
-import { randomSlug } from "@/lib/slug";
 import { zodToFieldErrors, type FormState } from "@/lib/form";
 import type { User } from "@prisma/client";
 
@@ -100,14 +98,14 @@ export async function uploadPhotoAction(formData: FormData): Promise<PhotoResult
   const profile = await ensureProfile(targetUserId);
   try {
     const input = Buffer.from(await file.arrayBuffer());
-    const processed = await processProfilePhoto(input);
-    const storage = storageService();
-    const key = `profiles/${profile.id}/${randomSlug(10)}.webp`;
-    const url = await storage.put(key, processed, "image/webp");
-
-    const old = profile.photoUrl;
-    await prisma.profile.update({ where: { id: profile.id }, data: { photoUrl: url } });
-    if (old) await storage.remove(old);
+    const processed = await processProfilePhoto(input); // 512px WebP
+    // Store bytes in the DB; photoUrl points at the serving route with a
+    // cache-buster so a new photo is picked up immediately.
+    const url = `/api/photo/${profile.slug}?v=${Date.now()}`;
+    await prisma.profile.update({
+      where: { id: profile.id },
+      data: { photoData: processed, photoMime: "image/webp", photoUrl: url },
+    });
 
     revalidatePath("/dashboard");
     return { ok: true, photoUrl: url };
@@ -120,10 +118,11 @@ export async function uploadPhotoAction(formData: FormData): Promise<PhotoResult
 export async function removePhotoAction(userId: string): Promise<PhotoResult> {
   await authorizeTarget(userId);
   const profile = await prisma.profile.findUnique({ where: { userId } });
-  if (!profile?.photoUrl) return { ok: true };
-  const old = profile.photoUrl;
-  await prisma.profile.update({ where: { id: profile.id }, data: { photoUrl: null } });
-  await storageService().remove(old);
+  if (!profile) return { ok: true };
+  await prisma.profile.update({
+    where: { userId },
+    data: { photoData: null, photoMime: null, photoUrl: null },
+  });
   revalidatePath("/dashboard");
   return { ok: true };
 }

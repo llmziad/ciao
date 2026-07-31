@@ -78,8 +78,13 @@ _No scan-event table in v1 (D4)._
 4. **Verify the composited code still scans** before offering download (automated check).
 5. Offer PNG / SVG / PDF (FR-Q4). QR/URL stay stable across content edits (FR-E8).
 
-### 4.2 Photo pipeline (FR-E3/E4)
-- Client circular-crop → upload → server validates type/size (max 10 MB source) →
+### 4.2 Photo pipeline (FR-E3/E4) — updated per D13
+- HEIC/HEIF is converted to JPEG in the browser (`heic2any`) before cropping so the
+  cropper can display it. Client circular-crop exports JPEG → server validates type/size
+  (max 10 MB source) → sharp → 512px WebP → **stored in Postgres (`Profile.photoData`)** and
+  served via `/api/photo/[slug]`. No external object storage (D13). Legacy note below
+  (Vercel Blob) is superseded for the POC.
+- ~~Client circular-crop → upload → server validates type/size (max 10 MB source) →~~
   store in object storage → save `photo_url`. Absent photo → branded fallback (D6) at render.
 
 ### 4.3 vCard (FR-P6, PRD §6)

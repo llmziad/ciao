@@ -52,7 +52,9 @@ model Profile {
   title     String?
   phone     String?
   address   String?
-  photoUrl  String? // null -> branded fallback (D6)
+  photoUrl  String? // pointer used by <img>; null -> branded fallback (D6)
+  photoData Bytes? // processed 512px WebP stored in-DB (no external object storage)
+  photoMime String?
 
   socialInstagram String?
   socialTwitter   String?

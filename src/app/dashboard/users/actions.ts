@@ -6,7 +6,6 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/rbac";
 import { issueToken } from "@/lib/auth/tokens";
 import { uniqueSlug } from "@/lib/slug";
-import { storageService } from "@/lib/services/storage";
 import { inviteUserSchema } from "@/lib/validation";
 import { env } from "@/lib/env";
 import { zodToFieldErrors, type FormState } from "@/lib/form";
@@ -128,19 +127,13 @@ export async function deleteUserAction(formData: FormData): Promise<void> {
   const userId = String(formData.get("userId") || "");
   if (userId === caller.id) throw new Error("You cannot delete your own account.");
 
-  const target = await prisma.user.findUnique({
-    where: { id: userId },
-    include: { profile: true },
-  });
+  const target = await prisma.user.findUnique({ where: { id: userId } });
   if (!target) return;
   if (target.role === "SUPER_ADMIN" && (await activeSuperAdminCount()) <= 1) {
     throw new Error("Cannot delete the last active super admin.");
   }
 
-  // Clean up stored photo (cascade handles profile + tokens rows).
-  if (target.profile?.photoUrl) {
-    await storageService().remove(target.profile.photoUrl);
-  }
+  // Cascade removes the profile row (incl. stored photo bytes) and tokens.
   await prisma.user.delete({ where: { id: userId } });
   revalidatePath("/dashboard/users");
 }

@@ -22,8 +22,12 @@ async function getCroppedBlob(src: string, area: Area): Promise<Blob> {
   if (!ctx) throw new Error("Canvas unsupported");
   ctx.drawImage(image, area.x, area.y, area.width, area.height, 0, 0, size, size);
   return new Promise<Blob>((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob failed"))), "image/png", 0.95),
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob failed"))), "image/jpeg", 0.9),
   );
+}
+
+function isHeic(file: File): boolean {
+  return /image\/(heic|heif)/i.test(file.type) || /\.(heic|heif)$/i.test(file.name);
 }
 
 export function PhotoUploader({
@@ -42,9 +46,10 @@ export function PhotoUploader({
   const [zoom, setZoom] = useState(1);
   const [area, setArea] = useState<Area | null>(null);
   const [busy, setBusy] = useState(false);
+  const [converting, setConverting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
@@ -53,9 +58,31 @@ export function PhotoUploader({
       return;
     }
     setError(null);
+
+    let blob: Blob = file;
+    // HEIC/HEIF can't render in most browsers — convert to JPEG first so the
+    // cropper can display it.
+    if (isHeic(file)) {
+      setConverting(true);
+      try {
+        const heic2any = (await import("heic2any")).default as (opts: {
+          blob: Blob;
+          toType?: string;
+          quality?: number;
+        }) => Promise<Blob | Blob[]>;
+        const out = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
+        blob = Array.isArray(out) ? out[0] : out;
+      } catch {
+        setConverting(false);
+        setError("Couldn't read that HEIC image. Try exporting it as JPG or PNG.");
+        return;
+      }
+      setConverting(false);
+    }
+
     const reader = new FileReader();
     reader.onload = () => setSrc(reader.result as string);
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(blob);
   };
 
   const onCropComplete = useCallback((_: Area, pixels: Area) => setArea(pixels), []);
@@ -68,7 +95,7 @@ export function PhotoUploader({
       const blob = await getCroppedBlob(src, area);
       const fd = new FormData();
       fd.append("userId", userId);
-      fd.append("file", new File([blob], "photo.png", { type: "image/png" }));
+      fd.append("file", new File([blob], "photo.jpg", { type: "image/jpeg" }));
       const res = await uploadPhotoAction(fd);
       if (!res.ok) setError(res.error || "Upload failed.");
       else {
@@ -94,21 +121,37 @@ export function PhotoUploader({
       <Avatar name={name || "Profile"} photoUrl={photoUrl} size={112} />
 
       <div className="flex gap-2">
-        <button type="button" className="btn-ghost" onClick={() => inputRef.current?.click()} disabled={busy}>
-          {photoUrl ? "Change photo" : "Add photo"}
+        <button
+          type="button"
+          className="btn-ghost"
+          onClick={() => inputRef.current?.click()}
+          disabled={busy || converting}
+        >
+          {converting ? "Converting…" : photoUrl ? "Change photo" : "Add photo"}
         </button>
         {photoUrl && (
-          <button type="button" className="btn-ghost text-danger" onClick={remove} disabled={busy}>
+          <button
+            type="button"
+            className="btn-ghost text-danger"
+            onClick={remove}
+            disabled={busy || converting}
+          >
             Remove
           </button>
         )}
       </div>
       <p className="hint text-center">
-        Optional. Shown as a circle. JPG, PNG, or WebP · max {MAX_UPLOAD_MB} MB.
+        Optional. Shown as a circle. JPG, PNG, WebP, or HEIC · max {MAX_UPLOAD_MB} MB.
       </p>
       {error && <p className="field-error">{error}</p>}
 
-      <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={onFile} />
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
+        hidden
+        onChange={onFile}
+      />
 
       {src && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
