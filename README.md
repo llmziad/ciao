@@ -39,18 +39,19 @@ npm run dev         # http://localhost:3000
 3. **QR panel** (right side) — copy your public link, download the QR as **PNG / SVG / PDF**,
    and open your public page.
 4. **Public page** — visit the public link (or scan the QR). Try **Save to contacts**.
-5. **Users** (super-admin only, top nav) — **invite a user**. Email isn't sent in dev;
-   the invite link appears in the UI ("Dev mode") *and* in the dev-server console. Open it
-   to set a password and activate that account.
+5. **Users** (super-admin only, top nav) — **invite a user**. Emails are disabled in V1, so
+   the **invite link** is shown with a Copy button; share it manually. Open it to set a
+   password and activate the account. For existing users you can generate a **reset link**
+   the same way.
 6. As the super admin, **Edit profile** of any user, deactivate/reactivate, change roles,
    or delete — note the guards (can't remove the last super admin, can't delete yourself).
 7. **Deactivate** a user and confirm their public page shows "profile unavailable".
 
-## Email & storage in dev
-- **Email:** with `RESEND_API_KEY` empty, invite/reset links print to the console and show
-  in the invite UI. Set the key + `EMAIL_FROM` to send real mail via Resend.
+## Email & storage
+- **Email:** disabled in V1 — no provider needed. Invite/reset links are generated in the
+  dashboard (super admin) and shared manually. See decision D12.
 - **Storage:** with `BLOB_READ_WRITE_TOKEN` empty, photos are written to
-  `public/uploads/` (gitignored). Set the token to use Vercel Blob.
+  `public/uploads/` (gitignored). Set the token to use Vercel Blob (required on Vercel).
 
 ## Scripts
 | Script | Purpose |

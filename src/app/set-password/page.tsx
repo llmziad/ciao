@@ -19,11 +19,9 @@ export default async function SetPasswordPage({
       <AuthShell title="Link expired" subtitle="This link is invalid or has already been used.">
         <div className="space-y-4">
           <p className="text-sm text-muted">
-            Password links are single-use and time-limited. Please request a new one.
+            Password links are single-use and time-limited. Ask your administrator to
+            generate a new one for you.
           </p>
-          <Link href="/forgot-password" className="btn-primary w-full">
-            Request a new link
-          </Link>
           <Link href="/login" className="btn-ghost w-full">
             Back to sign in
           </Link>

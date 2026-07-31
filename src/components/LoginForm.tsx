@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useFormState } from "react-dom";
 import { loginAction } from "@/app/login/actions";
 import { emptyFormState } from "@/lib/form";
@@ -48,11 +47,9 @@ export function LoginForm({ next }: { next?: string }) {
         Sign in
       </SubmitButton>
 
-      <div className="text-center">
-        <Link href="/forgot-password" className="text-sm font-medium text-icao-blue hover:underline">
-          Forgot your password?
-        </Link>
-      </div>
+      <p className="text-center text-xs text-muted">
+        Forgot your password? Ask your administrator for a reset link.
+      </p>
     </form>
   );
 }

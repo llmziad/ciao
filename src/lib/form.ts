@@ -3,8 +3,8 @@ export type FormState = {
   fieldErrors?: Record<string, string>;
   ok?: boolean;
   message?: string;
-  /** Dev-only: invite/reset link surfaced when the console email transport is used. */
-  devLink?: string;
+  /** Tokenized invite/reset link to copy & share (emails are disabled in V1). */
+  link?: string;
 };
 
 export const emptyFormState: FormState = {};

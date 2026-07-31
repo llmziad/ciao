@@ -50,8 +50,8 @@ Local proof-of-concept of ICAO Digital Identity, per docs 01–05. Stack + hosti
   `DATABASE_URL` + local `.env.local`.
 - **Photo uploads:** add a Vercel **Blob** store (auto-sets `BLOB_READ_WRITE_TOKEN`) — until
   then, uploads fail on Vercel's read-only filesystem.
-- **Invite emails:** set `RESEND_API_KEY` + `EMAIL_FROM` (verify sending domain). Until then
-  the console transport is used and invite links are surfaced in the dashboard UI.
+- **Emails:** disabled in V1 (D12) — invite & reset links are generated in the dashboard and
+  shared manually. Adding an email provider is a possible later enhancement.
 - Revoke the temporary Vercel deploy token if no longer needed (git push auto-deploys).
 
 ## How to run (local)

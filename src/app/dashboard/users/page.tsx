@@ -5,11 +5,11 @@ import { env } from "@/lib/env";
 import { Avatar } from "@/components/Avatar";
 import { InviteUserForm } from "@/components/InviteUserForm";
 import { ConfirmButton } from "@/components/ConfirmButton";
+import { AuthLinkButton } from "@/components/AuthLinkButton";
 import {
   deactivateUserAction,
   reactivateUserAction,
   deleteUserAction,
-  resendInviteAction,
   setRoleAction,
 } from "@/app/dashboard/users/actions";
 
@@ -78,14 +78,12 @@ export default async function UsersPage() {
                   Edit profile
                 </Link>
 
-                {pending && u.status === "ACTIVE" && (
-                  <form action={resendInviteAction}>
-                    <input type="hidden" name="userId" value={u.id} />
-                    <button type="submit" className="btn-ghost">
-                      Resend invite
-                    </button>
-                  </form>
-                )}
+                {u.status === "ACTIVE" &&
+                  (pending ? (
+                    <AuthLinkButton userId={u.id} kind="invite" label="Invite link" />
+                  ) : (
+                    <AuthLinkButton userId={u.id} kind="reset" label="Reset link" />
+                  ))}
 
                 {!isSelf && (
                   <form action={setRoleAction}>

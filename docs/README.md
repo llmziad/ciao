@@ -33,6 +33,10 @@ clean read-only public profile page (a digital business card).
 - When scope changes, update the affected doc and add a changelog entry below.
 
 ## Changelog
+- **2026-07-31** — **Emails disabled for V1 (D12).** Removed the email service and the public
+  "forgot password" flow. Invites now show a copyable **invite link**; super admin generates
+  copyable **reset links** per user from the Users page. Links stay single-use + time-limited.
+  typecheck + build clean.
 - **2026-07-31** — **Deployed to production (POC).** Live at https://ciao-plum.vercel.app
   (Vercel, `llmziad/ciao` → `main` auto-deploy). Set Production env vars (`DATABASE_URL`,
   `AUTH_SECRET`, `NEXT_PUBLIC_APP_URL`) and forced a rebuild via the Vercel API. Verified

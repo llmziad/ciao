@@ -6,8 +6,6 @@
 export const env = {
   appUrl: (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, ""),
   authSecret: process.env.AUTH_SECRET || "",
-  resendApiKey: process.env.RESEND_API_KEY || "",
-  emailFrom: process.env.EMAIL_FROM || "ICAO Digital Identity <noreply@icao.local>",
   blobToken: process.env.BLOB_READ_WRITE_TOKEN || "",
   isProd: process.env.NODE_ENV === "production",
 };

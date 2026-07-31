@@ -23,18 +23,18 @@ export function InviteUserForm() {
         </div>
       )}
 
-      {state.devLink && (
+      {state.link && (
         <div className="mt-3 rounded-lg border border-icao-blue/30 bg-icao-blue/5 p-3">
           <p className="text-xs font-semibold text-icao-navy">
-            Dev mode — email not sent. Share this invite link:
+            Invite link — send this to the new user so they can set a password:
           </p>
           <div className="mt-2 flex gap-2">
-            <input readOnly value={state.devLink} className="input font-mono text-[11px]" />
+            <input readOnly value={state.link} className="input font-mono text-[11px]" />
             <button
               type="button"
               className="btn-ghost shrink-0"
               onClick={async () => {
-                await navigator.clipboard.writeText(state.devLink!);
+                await navigator.clipboard.writeText(state.link!);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 1500);
               }}
@@ -42,6 +42,7 @@ export function InviteUserForm() {
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
+          <p className="mt-1.5 text-[11px] text-muted">The link expires in 7 days.</p>
         </div>
       )}
 

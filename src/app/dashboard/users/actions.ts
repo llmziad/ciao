@@ -6,12 +6,11 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/rbac";
 import { issueToken } from "@/lib/auth/tokens";
 import { uniqueSlug } from "@/lib/slug";
-import { emailService } from "@/lib/services/email";
 import { storageService } from "@/lib/services/storage";
 import { inviteUserSchema } from "@/lib/validation";
 import { env } from "@/lib/env";
 import { zodToFieldErrors, type FormState } from "@/lib/form";
-import type { User } from "@prisma/client";
+import type { TokenType, User } from "@prisma/client";
 
 async function requireSuper(): Promise<User> {
   const caller = await getCurrentUser();
@@ -24,8 +23,8 @@ async function activeSuperAdminCount(): Promise<number> {
   return prisma.user.count({ where: { role: "SUPER_ADMIN", status: "ACTIVE" } });
 }
 
-function inviteLink(raw: string): string {
-  return `${env.appUrl}/set-password?mode=invite&token=${raw}`;
+function tokenLink(raw: string, mode: "invite" | "reset"): string {
+  return `${env.appUrl}/set-password?mode=${mode}&token=${raw}`;
 }
 
 export async function inviteUserAction(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -52,37 +51,34 @@ export async function inviteUserAction(_prev: FormState, formData: FormData): Pr
   });
 
   const raw = await issueToken(user.id, "INVITE");
-  const link = inviteLink(raw);
-  const usingConsole = !env.resendApiKey;
-  try {
-    await emailService().sendInvite(email, name, link);
-  } catch (e) {
-    console.error("Invite email failed:", e);
-    if (!usingConsole) {
-      return { ok: true, message: `User created, but the invite email failed to send.` };
-    }
-  }
 
   revalidatePath("/dashboard/users");
   return {
     ok: true,
-    message: `Invitation sent to ${email}.`,
-    devLink: usingConsole ? link : undefined,
+    message: `${email} added. Copy their invite link below to share it.`,
+    link: tokenLink(raw, "invite"),
   };
 }
 
-export async function resendInviteAction(formData: FormData): Promise<void> {
+export type AuthLinkResult = { ok: boolean; link?: string; error?: string };
+
+/**
+ * Super-admin generates a fresh invite or password-reset link for a user.
+ * Emails are disabled in V1 — the link is copied & shared manually.
+ */
+export async function generateAuthLinkAction(
+  userId: string,
+  kind: "invite" | "reset",
+): Promise<AuthLinkResult> {
   await requireSuper();
-  const userId = String(formData.get("userId") || "");
-  const user = await prisma.user.findUnique({ where: { id: userId }, include: { profile: true } });
-  if (!user) return;
-  const raw = await issueToken(user.id, "INVITE");
-  try {
-    await emailService().sendInvite(user.email, user.profile?.name || user.email, inviteLink(raw));
-  } catch (e) {
-    console.error("Resend invite failed:", e);
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return { ok: false, error: "User not found." };
+  if (user.status !== "ACTIVE") {
+    return { ok: false, error: "Reactivate the user before generating a link." };
   }
-  revalidatePath("/dashboard/users");
+  const type: TokenType = kind === "invite" ? "INVITE" : "RESET";
+  const raw = await issueToken(user.id, type);
+  return { ok: true, link: tokenLink(raw, kind) };
 }
 
 export async function deactivateUserAction(formData: FormData): Promise<void> {
