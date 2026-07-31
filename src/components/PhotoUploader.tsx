@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Cropper, { type Area } from "react-easy-crop";
 import { Avatar } from "@/components/Avatar";
 import { uploadPhotoAction, removePhotoAction } from "@/app/dashboard/actions";
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MB } from "@/lib/upload";
 
 async function getCroppedBlob(src: string, area: Area): Promise<Blob> {
   const image = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -47,8 +48,8 @@ export function PhotoUploader({
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Image must be under 5 MB.");
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setError(`Image must be under ${MAX_UPLOAD_MB} MB.`);
       return;
     }
     setError(null);
@@ -102,7 +103,9 @@ export function PhotoUploader({
           </button>
         )}
       </div>
-      <p className="hint text-center">Optional. Shown as a circle. JPG, PNG, or WebP · max 5 MB.</p>
+      <p className="hint text-center">
+        Optional. Shown as a circle. JPG, PNG, or WebP · max {MAX_UPLOAD_MB} MB.
+      </p>
       {error && <p className="field-error">{error}</p>}
 
       <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={onFile} />

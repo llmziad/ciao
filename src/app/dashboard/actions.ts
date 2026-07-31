@@ -9,6 +9,7 @@ import { ensureProfile } from "@/lib/profile";
 import { profileSchema } from "@/lib/validation";
 import { normalizeSocial, type SocialNetwork } from "@/lib/socials";
 import { processProfilePhoto, isAcceptedImage, MAX_UPLOAD_BYTES } from "@/lib/photo";
+import { MAX_UPLOAD_MB } from "@/lib/upload";
 import { storageService } from "@/lib/services/storage";
 import { randomSlug } from "@/lib/slug";
 import { zodToFieldErrors, type FormState } from "@/lib/form";
@@ -93,7 +94,7 @@ export async function uploadPhotoAction(formData: FormData): Promise<PhotoResult
 
   const file = formData.get("file");
   if (!(file instanceof File)) return { ok: false, error: "No file provided." };
-  if (file.size > MAX_UPLOAD_BYTES) return { ok: false, error: "Image must be under 5 MB." };
+  if (file.size > MAX_UPLOAD_BYTES) return { ok: false, error: `Image must be under ${MAX_UPLOAD_MB} MB.` };
   if (!isAcceptedImage(file.type)) return { ok: false, error: "Use a JPG, PNG, or WebP image." };
 
   const profile = await ensureProfile(targetUserId);

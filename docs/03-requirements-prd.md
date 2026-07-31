@@ -70,7 +70,7 @@ _There is no public signup (D2). Every account is created by a super admin._
 - **FR-E2** **Name is required.** All other fields optional; empty socials are omitted from
   the public page.
 - **FR-E3** Photo upload supports common formats (JPG/PNG/WebP), with a **circular crop**
-  UI and a preview matching the public rendering. Max file size TBD (default 5 MB).
+  UI and a preview matching the public rendering. Max source file size 10 MB.
 - **FR-E4** Photo is optional; when absent, a branded fallback (initials or ICAO monogram
   in a circle) renders (D6).
 - **FR-E5** Phone captured with country code; validated for basic format.

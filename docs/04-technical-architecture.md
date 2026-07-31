@@ -79,7 +79,7 @@ _No scan-event table in v1 (D4)._
 5. Offer PNG / SVG / PDF (FR-Q4). QR/URL stay stable across content edits (FR-E8).
 
 ### 4.2 Photo pipeline (FR-E3/E4)
-- Client circular-crop → upload → server validates type/size (default max 5 MB) →
+- Client circular-crop → upload → server validates type/size (max 10 MB source) →
   store in object storage → save `photo_url`. Absent photo → branded fallback (D6) at render.
 
 ### 4.3 vCard (FR-P6, PRD §6)

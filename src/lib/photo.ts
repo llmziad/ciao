@@ -1,8 +1,9 @@
 import "server-only";
 import sharp from "sharp";
+import { MAX_UPLOAD_BYTES, ACCEPTED_IMAGE_TYPES } from "@/lib/upload";
 
-export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB (FR-E3)
-const ACCEPTED = new Set(["image/jpeg", "image/png", "image/webp"]);
+export { MAX_UPLOAD_BYTES };
+const ACCEPTED = new Set(ACCEPTED_IMAGE_TYPES);
 const OUTPUT_SIZE = 512;
 
 export function isAcceptedImage(type: string): boolean {
